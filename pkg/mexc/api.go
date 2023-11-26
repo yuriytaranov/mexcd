@@ -5,6 +5,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -56,9 +57,21 @@ func PostRequest[T any](endpoint string, params map[string]any, key string, secr
 	r.Header.Add("X-MEXC-APIKEY", key)
 	r.Header.Add("Content-Type", "application/json")
 
-	_, err = client.Do(r)
+	res, err := client.Do(r)
 	if err != nil {
 		return nil, fmt.Errorf("client do error %w", err)
 	}
-	return nil, nil
+
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("request code is not ok %s (%d)", res.Status, res.StatusCode)
+	}
+
+	var target T
+	if err := json.NewDecoder(res.Body).Decode(&target); err != nil {
+		return nil, fmt.Errorf("failed to decode response %w", err)
+	}
+
+	return &target, nil
 }
