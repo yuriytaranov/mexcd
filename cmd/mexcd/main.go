@@ -17,7 +17,7 @@ func main() {
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	client := mexc.NewSpotClient(os.Getenv("MEXC_KEY"), os.Getenv("MEXC_SECRET"))
+	client := mexc.NewSpotClient(os.Getenv("MEXC_BASE"), os.Getenv("MEXC_KEY"), os.Getenv("MEXC_SECRET"))
 	app := service.NewApplication(client)
 
 	api := webapi.NewWeb(app)

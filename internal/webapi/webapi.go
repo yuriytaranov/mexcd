@@ -8,12 +8,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/yuriytaranov/mexcd/internal/service"
+	"github.com/yuriytaranov/mexcd/internal/webapi/handlers"
 )
 
 type Web struct {
 	app    service.Service
 	server *http.Server
-	router *chi.Mux
 }
 
 func NewWeb(app service.Service) *Web {
@@ -22,12 +22,19 @@ func NewWeb(app service.Service) *Web {
 	}
 }
 
-func (w *Web) Run(ctx context.Context, address string) {
-	w.router = chi.NewRouter()
+func newRouter(app service.Service) *chi.Mux {
+	r := chi.NewRouter()
+	h := handlers.NewHanders(app)
+	r.Get("/", h.Root())
+	r.Post("/order/new", h.PostNewOrder())
 
+	return r
+}
+
+func (w *Web) Run(ctx context.Context, address string) {
 	w.server = &http.Server{
 		Addr:    address,
-		Handler: w.router,
+		Handler: newRouter(w.app),
 	}
 
 	go func() {

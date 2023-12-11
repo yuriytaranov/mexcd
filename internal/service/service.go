@@ -2,14 +2,20 @@ package service
 
 import "github.com/yuriytaranov/mexcd/pkg/mexc"
 
-type Service interface{}
-
-type Application struct {
-	client mexc.API
+type Service interface {
+	NewOrder(request mexc.NewOrderRequest) (*mexc.NewOrderResponse, error)
 }
 
-func NewApplication(client mexc.API) *Application {
+type Application struct {
+	client mexc.APISpot
+}
+
+func NewApplication(client mexc.APISpot) *Application {
 	return &Application{
 		client: client,
 	}
+}
+
+func (a *Application) NewOrder(request mexc.NewOrderRequest) (*mexc.NewOrderResponse, error) {
+	return a.client.NewOrder(request)
 }

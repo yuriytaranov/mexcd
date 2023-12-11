@@ -10,15 +10,20 @@ import (
 	"net/http"
 )
 
-type API interface{}
+type APISpot interface {
+	NewOrder(request NewOrderRequest) (*NewOrderResponse, error)
+	TestNewOrder(request NewOrderRequest) (*NewOrderResponse, error)
+}
 
 type SpotClient struct {
+	base   string
 	key    string
 	secret string
 }
 
-func NewSpotClient(key, secret string) *SpotClient {
+func NewSpotClient(base, key, secret string) *SpotClient {
 	return &SpotClient{
+		base:   base,
 		key:    key,
 		secret: secret,
 	}
@@ -33,7 +38,7 @@ func signRequest(params, secret string) string {
 	return hex.EncodeToString(dh)
 }
 
-func PostRequest[T any](endpoint string, params map[string]any, key string, secret string) (*T, error) {
+func postRequest[T any](endpoint string, params map[string]any, key string, secret string) (*T, error) {
 	var queryString string
 	addAmpersand := false
 	for k, v := range params {
