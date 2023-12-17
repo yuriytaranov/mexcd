@@ -4,6 +4,7 @@ import "github.com/yuriytaranov/mexcd/pkg/mexc"
 
 type Service interface {
 	NewOrder(request mexc.NewOrderRequest) (*mexc.NewOrderResponse, error)
+	TestNewOrder(request mexc.NewOrderRequest) (*mexc.NewOrderResponse, error)
 }
 
 type Application struct {
@@ -18,4 +19,8 @@ func NewApplication(client mexc.APISpot) *Application {
 
 func (a *Application) NewOrder(request mexc.NewOrderRequest) (*mexc.NewOrderResponse, error) {
 	return a.client.NewOrder(request)
+}
+
+func (a *Application) TestNewOrder(request mexc.NewOrderRequest) (*mexc.NewOrderResponse, error) {
+	return a.client.TestNewOrder(request)
 }

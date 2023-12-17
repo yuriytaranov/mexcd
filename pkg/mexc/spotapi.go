@@ -6,7 +6,10 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 )
 
@@ -38,16 +41,24 @@ func signRequest(params, secret string) string {
 	return hex.EncodeToString(dh)
 }
 
-func postRequest[T any](endpoint string, params map[string]any, key string, secret string) (*T, error) {
+func postSignedRequest[T any](endpoint string, params map[string]string, key string, secret string) (*T, error) {
 	var queryString string
 	addAmpersand := false
 	for k, v := range params {
+		if k == "timestamp" {
+			continue
+		}
+
 		if addAmpersand {
 			queryString += "&"
 		}
-		queryString += fmt.Sprintf("%s=%s", k, v)
 
+		queryString += fmt.Sprintf("%s=%s", k, v)
 		addAmpersand = true
+	}
+
+	if timestamp, ok := params["timestamp"]; ok {
+		queryString += fmt.Sprintf("&timestamp=%s", timestamp)
 	}
 
 	signature := signRequest(queryString, secret)
@@ -70,11 +81,19 @@ func postRequest[T any](endpoint string, params map[string]any, key string, secr
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("request code is not ok %s (%d)", res.Status, res.StatusCode)
+		b, err := io.ReadAll(res.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read body error %w", err)
+		}
+
+		return nil, fmt.Errorf("request code is not ok %s (%d) error=%w", res.Status, res.StatusCode, errors.New(string(b)))
 	}
 
+	body, err := io.ReadAll(res.Body)
+	log.Println(endpoint, string(body))
+
 	var target T
-	if err := json.NewDecoder(res.Body).Decode(&target); err != nil {
+	if err := json.Unmarshal(body, &target); err != nil {
 		return nil, fmt.Errorf("failed to decode response %w", err)
 	}
 
