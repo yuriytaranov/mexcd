@@ -28,6 +28,7 @@ func newRouter(app service.Service) *chi.Mux {
 	r.Get("/", h.Root())
 	r.Post("/spot/order/new", h.PostNewOrder())
 	r.Post("/spot/order/test", h.PostTestOrder())
+	r.Post("/futures/order/submit", h.PostOrderSubmit())
 
 	return r
 }

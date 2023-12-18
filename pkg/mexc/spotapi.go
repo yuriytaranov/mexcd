@@ -13,7 +13,7 @@ import (
 	"net/http"
 )
 
-type APISpot interface {
+type SpotAPI interface {
 	NewOrder(request NewOrderRequest) (*NewOrderResponse, error)
 	TestNewOrder(request NewOrderRequest) (*NewOrderResponse, error)
 }

@@ -5,22 +5,29 @@ import "github.com/yuriytaranov/mexcd/pkg/mexc"
 type Service interface {
 	NewOrder(request mexc.NewOrderRequest) (*mexc.NewOrderResponse, error)
 	TestNewOrder(request mexc.NewOrderRequest) (*mexc.NewOrderResponse, error)
+	OrderSubmit(request mexc.OrderSubmitRequest) (*mexc.OrderSubmitResponse, error)
 }
 
 type Application struct {
-	client mexc.APISpot
+	spot    mexc.SpotAPI
+	futures mexc.FuturesAPI
 }
 
-func NewApplication(client mexc.APISpot) *Application {
+func NewApplication(spot mexc.SpotAPI, futures mexc.FuturesAPI) *Application {
 	return &Application{
-		client: client,
+		spot:    spot,
+		futures: futures,
 	}
 }
 
+func (a *Application) OrderSubmit(request mexc.OrderSubmitRequest) (*mexc.OrderSubmitResponse, error) {
+	return a.futures.OrderSubmit(request)
+}
+
 func (a *Application) NewOrder(request mexc.NewOrderRequest) (*mexc.NewOrderResponse, error) {
-	return a.client.NewOrder(request)
+	return a.spot.NewOrder(request)
 }
 
 func (a *Application) TestNewOrder(request mexc.NewOrderRequest) (*mexc.NewOrderResponse, error) {
-	return a.client.TestNewOrder(request)
+	return a.spot.TestNewOrder(request)
 }
