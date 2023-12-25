@@ -35,8 +35,8 @@ func (c *FuturesClient) OrderSubmit(request OrderSubmitRequest) (*OrderSubmitRes
 	if request.Leverage != nil {
 		req["leverage"] = fmt.Sprintf("%d", *request.Leverage)
 	}
-	req["side"] = string(request.Side)
-	req["type"] = string(request.OrderType)
+	req["side"] = fmt.Sprintf("%d", request.Side)
+	req["type"] = fmt.Sprintf("%d", request.OrderType)
 	req["openType"] = fmt.Sprintf("%d", request.OpenType)
 	if request.PositionID != nil {
 		req["positionId"] = fmt.Sprintf("%d", *request.PositionID)
@@ -56,7 +56,7 @@ func (c *FuturesClient) OrderSubmit(request OrderSubmitRequest) (*OrderSubmitRes
 	if request.ReduceOnly != nil {
 		req["reduceOnly"] = strconv.FormatBool(*request.ReduceOnly)
 	}
-	response, err := postSignedRequest[OrderSubmitResponse](
+	response, err := postSignedFuturesRequest[OrderSubmitResponse](
 		fmt.Sprintf("%s%s", c.base, "/api/v1/private/order/submit"),
 		req,
 		c.key,
