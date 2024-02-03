@@ -18,6 +18,7 @@ import (
 
 type FuturesAPI interface {
 	OrderSubmit(request OrderSubmitRequest) (*OrderSubmitResponse, error)
+	HistoryPositions(request HistoryPositionsRequest) (*HistoryPositionsResponse, error)
 }
 
 type FuturesClient struct {
